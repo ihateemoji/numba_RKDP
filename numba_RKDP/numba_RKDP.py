@@ -5,7 +5,7 @@ import os
 
 # define the signature of input function
 RKDP_sig = nb.types.void(nb.types.double, nb.types.CPointer(nb.types.double), \
-         nb.types.CPointer(nb.types.double), nb.types.CPointer(nb.types.void))
+        nb.types.CPointer(nb.types.double), nb.types.CPointer(nb.types.double))
 
 # locate the shared library inside the package
 _pkg_root = os.path.dirname(__file__)
