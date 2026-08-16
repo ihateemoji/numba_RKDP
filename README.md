@@ -25,24 +25,7 @@ Or:
 pip install .
 ```
 
-Example pattern:
-```
-import numpy as np
-import numba as nb
-from numba_RKDP import RKDP, RKDP_sig
-
-@nb.cfunc(RKDP_sig)
-def rhs(x, y_ptr, dydx_ptr, data):
-    y = nb.carray(y_ptr, (4,))
-    dydx = nb.carray(dydx_ptr, (4,))
-    # fill dydx[...] from y[...]
-
-y0 = np.array([theta1, dtheta1, theta2, dtheta2], np.float64)
-t = np.arange(0, 100, 0.01)
-
-sol = RKDP(rhs.address, t, y0)
-# sol shape: (num_vars, num_points)
-```
+For example usage, see "examples" folder in the repository.
 
 Notes & troubleshooting
 - If Python cannot find the shared library, ensure you ran `make` at the repo root (setup.py runs it automatically on install).
