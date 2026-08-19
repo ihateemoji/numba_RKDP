@@ -44,26 +44,36 @@ sol = RKDP(rhs.address, t, y0)
 theta1 = sol[0,:]
 theta2 = sol[2,:]
 # construct x and y in units of l
-x = np.sin(theta1) + 1/2*np.sin(theta2)
-y = - np.cos(theta1) - 1/2*np.cos(theta2)
+x = np.sin(theta1) + np.sin(theta2)
+y = - np.cos(theta1) - np.cos(theta2)
+# construct x and y for the first pendulum in units of l
+x1 = np.sin(theta1)
+y1 = - np.cos(theta1)
 
 # plot the results
 fig, ax = plt.subplots()
-ax.set_xlim(np.min(x)-0.1, np.max(x)+0.1)
-ax.set_ylim(np.min(y)-0.1, np.max(y)+0.1)
+L = np.max([np.max(np.abs(x)), np.max(np.abs(y))])
+ax.set_xlim(-L-0.1, L+0.1)
+ax.set_ylim(-L-0.1, L+0.1)
 point, = ax.plot([], [], 'o', ms=6)
 tail,  = ax.plot([], [], '-', lw=1)
+p1,    = ax.plot([], [], '-', lw=5)
+p2,    = ax.plot([], [], '-', lw=5)
 dt = t[1] - t[0]
 interval_ms = 1000 * dt / max(speed, 1e-12)
 def init():
     point.set_data([], [])
     tail.set_data([], [])
-    return point, tail
+    p1.set_data([], [])
+    p2.set_data([], [])
+    return tail, p1, p2, point
 def update(k):
     point.set_data([x[k]], [y[k]])
     k0 = max(0, k - tail_len)
     tail.set_data(x[k0:k+1], y[k0:k+1])
-    return point, tail
+    p1.set_data([0, x1[k]], [0, y1[k]])
+    p2.set_data([x1[k], x[k]], [y1[k], y[k]])
+    return tail, p1, p2, point
 ani = FuncAnimation(
     fig, update,
     frames=len(x),
