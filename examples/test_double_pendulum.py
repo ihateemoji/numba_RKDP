@@ -72,7 +72,7 @@ ani = FuncAnimation(
     blit=True
 )
 plt.title(r"Double Pendulum Test: $\theta_1 ="+str(round(y0[0],4)) + \
-                            r"$, $\theta_2 ="+str(round(y0[3],4))+"$", pad=10)
+                            r"$, $\theta_2 ="+str(round(y0[2],4))+"$", pad=10)
 plt.xlabel("$x / l$")
 plt.ylabel("$y / l$")
 plt.tight_layout()
