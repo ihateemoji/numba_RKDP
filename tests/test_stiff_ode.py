@@ -15,8 +15,8 @@ def test_stiff_ode():
     Test the RKDP solver on a simple stiff linear ODE system.
 
     The test system is:
-        dy0/dt = -1000 * y0
-        dy1/dt = -0.01 * y1
+        dy0/dt = -10 * y0
+        dy1/dt = -0.1 * y1
 
     This is a classic stiff test problem. The solver must remain stable
     and accurate across the entire time interval.
