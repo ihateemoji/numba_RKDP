@@ -1,4 +1,4 @@
-CC = gcc
+CC ?= gcc
 CFLAGS = -O3 -fPIC -std=c99 -Wall -fopenmp
 LDFLAGS = -shared -fopenmp
 SRCS = src/RKDP.c
