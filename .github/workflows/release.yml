@@ -26,10 +26,13 @@ jobs:
         uses: pypa/cibuildwheel@v2.23
         # cibuildwheel will automatically:
         # - create isolated build environments
+        # - run `make` to compile the C library
         # - run `pip wheel .` inside them
         # - produce manylinux/macosx/win wheels containing the compiled library
         env:
           CIBW_BUILD: "cp38-* cp39-* cp310-* cp311-* cp312-* cp313-*"
+          # Build the C library first in each isolated environment
+          CIBW_BEFORE_ALL: "make"
           # We only need the shared library; no tests during wheel build
           CIBW_TEST_SKIP: "*"
 
