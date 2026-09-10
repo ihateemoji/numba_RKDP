@@ -54,6 +54,13 @@ jobs:
         with:
           python-version: "3.x"
 
+      - name: Install real GCC (not Apple clang)
+        run: |
+          brew install gcc
+          # Force the build to use Homebrew's gcc instead of Apple clang
+          GCC_BIN=$(ls $(brew --prefix gcc)/bin/gcc-* | head -n1)
+          echo "CC=$GCC_BIN" >> $GITHUB_ENV
+
       - name: Install package
         run: |
           python -m pip install --upgrade pip
