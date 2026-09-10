@@ -1,4 +1,5 @@
 # numba_RKDP
+[![Python package](https://github.com/ihateemoji/numba_RKDP/actions/workflows/ci.yml/badge.svg)](https://github.com/ihateemoji/numba_RKDP/actions/workflows/ci.yml)
 
 `numba_RKDP` is an Adaptive Dormand–Prince (RKDP) ODE solver exposed to Python/Numba via a small C shared library.
 
