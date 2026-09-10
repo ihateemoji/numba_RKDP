@@ -51,17 +51,13 @@ def RKDP(func_ptr, x, y0, eps_rel=1e-12, \
             <array<float>> - resulting solution 2D array with first index
                                 corresponding to the function and the second
                                 index corresponding to the point in x domain"""
-    # allocate solution array
-    y = np.zeros(len(x)*len(y0), np.float64)
+    # allocate solution array (column-major layout expected by C)
+    total = len(x)*len(y0)
+    y = np.empty(total, np.float64)
     # store the initial conditions in the solution array
-    for i in range(len(y0)):
-        y[i] = y0[i]
+    y[:len(y0)] = y0
     # call C solver
     RKDP_solver(x.ctypes.data, y.ctypes.data, func_ptr, eps_rel, \
                                 len(y0), len(x), data.ctypes.data, silent)
-    # neatly package the solution into a convenient 2D numpy array
-    y_out = np.zeros((len(y0), len(x)), np.float64)
-    for mu in range(len(y0)):
-        for nu in range(len(x)):
-            y_out[mu, nu] = y[mu + nu*len(y0)]
-    return y_out
+    # reshape to (N, M) then transpose -> (M, N) C-contiguous
+    return y.reshape((len(x), len(y0))).T.copy()
