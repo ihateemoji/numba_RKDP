@@ -2,6 +2,17 @@ import os
 import platform
 import subprocess
 from setuptools import setup
+from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
+
+
+class bdist_wheel(_bdist_wheel):
+    def finalize_options(self):
+        _bdist_wheel.finalize_options(self)
+        self.root_is_pure = False
+
+    def get_tag(self):
+        python, abi, plat = _bdist_wheel.get_tag(self)
+        return python, abi, plat
 
 def get_lib_filename():
     sysname = platform.system()
@@ -31,6 +42,7 @@ setup(
     package_data={'numba_RKDP': [os.path.join('lib', lib_filename)]},
     include_package_data=True,
     install_requires=['numba'],
+    cmdclass={'bdist_wheel': bdist_wheel},
     classifiers=[
         'Programming Language :: Python :: 3',
         'Programming Language :: C',
