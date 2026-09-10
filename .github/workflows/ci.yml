@@ -1,0 +1,45 @@
+# Simple CI workflow for the numba_RKDP project.
+# This workflow runs on every push and pull request.
+# It installs the package via pip and runs the test suite with -s
+# so that diagnostic prints from the tests are visible in the logs.
+
+name: CI
+
+# Trigger the workflow on push and pull_request events
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+# One job called "test"
+jobs:
+  test:
+    # Run on the latest Ubuntu runner
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: checkout the repository code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: set up Python (use a recent stable version)
+      - name: Set up Python
+        uses: actions/setup-python@v5
+
+      # Step 3: install the package in editable mode
+      # This runs "pip install -e ." which builds and installs
+      # the project exactly as a normal user would do with pip.
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install .
+
+      # Step 4: install pytest so we can run the tests
+      - name: Install pytest
+        run: python -m pip install pytest
+
+      # Step 5: run the tests with -s so that print statements
+      # inside the tests (the diagnostic output) are shown in the log.
+      - name: Run tests
+        run: python -m pytest -s
