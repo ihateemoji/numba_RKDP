@@ -1,13 +1,7 @@
-# GitHub Actions workflow for building and publishing platform-specific
-# shared libraries as part of a GitHub Release.
+# GitHub Actions workflow that builds platform wheels using cibuildwheel
+# and publishes them as a GitHub Release.
 #
-# Triggers:
-#   - Any push of a tag matching v* (e.g. v0.0.2)
-#   - Manual trigger via the "Run workflow" button in the Actions tab
-#
-# The workflow has two jobs:
-#   1. build   - compiles the C library on Linux, macOS, and Windows
-#   2. release - downloads the three artifacts and attaches them to a release
+# Triggers on version tags (v*) or manual dispatch.
 
 name: Build and Release
 
@@ -18,73 +12,48 @@ on:
   workflow_dispatch:
 
 jobs:
-  # ------------------------------------------------------------
-  # Build job - runs once per OS using a matrix strategy
-  # ------------------------------------------------------------
-  build:
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
 
     steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Python (required for package metadata)
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.x"
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.23
+        # cibuildwheel will automatically:
+        # - create isolated build environments
+        # - run `pip wheel .` inside them
+        # - produce manylinux/macosx/win wheels containing the compiled library
+        env:
+          CIBW_BUILD: "cp38-* cp39-* cp310-* cp311-* cp312-* cp313-*"
+          # We only need the shared library; no tests during wheel build
+          CIBW_TEST_SKIP: "*"
 
-      # Linux: use the system gcc that comes with ubuntu-latest
-      - name: Install build tools (Linux)
-        if: matrix.os == 'ubuntu-latest'
-        run: sudo apt-get update && sudo apt-get install -y build-essential
-
-      # macOS: Homebrew gcc is needed because Apple clang lacks OpenMP
-      - name: Install build tools (macOS)
-        if: matrix.os == 'macos-latest'
-        run: |
-          brew install gcc
-          GCC_BIN=$(ls $(brew --prefix gcc)/bin/gcc-* | head -n1)
-          echo "CC=$GCC_BIN" >> $GITHUB_ENV
-
-      # Windows: mingw-w64 provides gcc
-      - name: Install build tools (Windows)
-        if: matrix.os == 'windows-latest'
-        run: choco install mingw -y
-
-      - name: Add mingw to PATH (Windows)
-        if: matrix.os == 'windows-latest'
-        run: echo "C:\ProgramData\mingw64\mingw64\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-
-      - name: Build the shared library using Makefile
-        run: make
-
-      - name: Upload built library as artifact
+      - name: Upload wheels as artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: lib-${{ matrix.os }}
-          path: numba_RKDP/lib/*
+          name: wheels-${{ matrix.os }}
+          path: ./wheelhouse/*.whl
 
-  # ------------------------------------------------------------
-  # Release job - runs after all three builds succeed
-  # ------------------------------------------------------------
   release:
-    needs: build
+    needs: build_wheels
     runs-on: ubuntu-latest
     permissions:
-      contents: write   # required to create releases
+      contents: write
 
     steps:
-      - name: Download all platform artifacts
+      - name: Download all wheel artifacts
         uses: actions/download-artifact@v4
         with:
-          path: artifacts
+          path: dist
           merge-multiple: true
 
-      - name: Create GitHub Release and attach binaries
+      - name: Create GitHub Release with wheels
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
-          files: artifacts/**/*
+          files: dist/*.whl
