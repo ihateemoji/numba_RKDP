@@ -49,7 +49,7 @@ def test_stiff_ode():
         dydx[1] = -0.1 * y[1]
 
     # solve the system
-    sol = RKDP(rhs.address, t, y0, eps_rel=1e-14, silent=0)
+    sol = RKDP(rhs.address, t, y0, eps_rel=1e-14, silent=1)
 
     # analytic solution over the entire time domain
     y0_exact = np.exp(-10.0 * t)

@@ -3,7 +3,7 @@
 # It installs the package via pip and runs the test suite with -s
 # so that diagnostic prints from the tests are visible in the logs.
 
-name: CI
+name: Python package
 
 # Trigger the workflow on push and pull_request events
 on:
@@ -12,9 +12,8 @@ on:
   pull_request:
     branches: [ master, main ]
 
-# One job called "test"
 jobs:
-  test:
+  build-linux:
     # Run on the latest Ubuntu runner
     runs-on: ubuntu-latest
 
