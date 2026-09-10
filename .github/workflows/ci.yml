@@ -6,13 +6,15 @@
 # On Windows we install mingw-w64 so that the same gcc-based
 # Makefile can be used (see the project Makefile).
 
-name: CI
+name: Python package
 
 on:
   push:
-    branches: [ master, main ]
+    branches: 
+        - master
   pull_request:
-    branches: [ master, main ]
+    branches: -
+        - master
 
 jobs:
   # ------------------------------------------------------------
