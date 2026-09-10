@@ -3,8 +3,7 @@
 
 `numba_RKDP` is an Adaptive Dormand–Prince (RKDP) ODE solver exposed to Python/Numba via a small C shared library.
 
-### Installation (from a GitHub Release)
-
+## Installation (from a GitHub Release)
 Download a wheel for your platform from the
 [Releases](https://github.com/ihateemoji/numba_RKDP/releases) page and install it with:
 
