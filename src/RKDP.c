@@ -137,25 +137,17 @@ void Adaptive_Step(void (*f)(double, double*, double*, void*),
                                           + h *   11.0/84.0   * *(K6+nu);
             }
             f(x+h, temp, K7, data);
-            /* compute relative truncation error (vectorised) */
-            const double e1 = 35.0/384.0   - 5179.0/57600.0;
-            const double e3 = 500.0/1113.0 - 7571.0/16695.0;
-            const double e4 = 125.0/192.0  - 393.0/640.0;
-            const double e5 = 2187.0/6784.0-92097.0/339200.0;
-            const double e6 = 11.0/84.0    - 187.0/2100.0;
-            const double e7 = -1.0/40.0;
+            /* compute relative truncation error */
             TE = 0.0;
             total_y = 0.0;
-            #pragma omp simd reduction(+:TE,total_y)
             for (int64_t nu = 0; nu < N; nu++) {
-                double d1 = e1 * *(K1+nu) * h;
-                double d3 = e3 * *(K3+nu) * h;
-                double d4 = e4 * *(K4+nu) * h;
-                double d5 = e5 * *(K5+nu) * h;
-                double d6 = e6 * *(K6+nu) * h;
-                double d7 = e7 * *(K7+nu) * h;
-                TE      += (d1+d3+d4+d5+d6+d7)*(d1+d3+d4+d5+d6+d7);
-                total_y += *(temp+nu)*(*(temp+nu));
+                TE += pow( (  35.0/384.0  -  5179.0/57600.0)   * *(K1+nu) * h
+                         + ( 500.0/1113.0 -  7571.0/16695.0)   * *(K3+nu) * h
+                         + ( 125.0/192.0  -   393.0/640.0)     * *(K4+nu) * h
+                         - (2187.0/6784.0 - 92097.0/339200.0)  * *(K5+nu) * h
+                         + (  11.0/84.0   -  187.0/2100.0)     * *(K6+nu) * h
+                         -     1.0/40.0 * *(K7+nu) * h, 2.0);
+                total_y += pow( *(temp+nu), 2.0);
             }
             TE = sqrt(TE);
             total_y = sqrt(total_y);
@@ -169,17 +161,16 @@ void Adaptive_Step(void (*f)(double, double*, double*, void*),
         } while (TE > eps_in*total_y);
         /* once the error threshold is achieved, we advance the solution */
         cp_array(K7, K1, N); /* use FSAL property of the method */
-        const double c1 = 5179.0/57600.0;
-        const double c3 = 7571.0/16695.0;
-        const double c4 = 393.0/640.0;
-        const double c5 = -92097.0/339200.0;
-        const double c6 = 187.0/2100.0;
-        const double c7 = 1.0/40.0;
         #pragma omp simd
         for (int64_t nu = 0; nu < N; nu++) {
-            *(temp_y+nu) +=
-                c1*(*(K1+nu))*h + c3*(*(K3+nu))*h + c4*(*(K4+nu))*h +
-                c5*(*(K5+nu))*h + c6*(*(K6+nu))*h + c7*(*(K7+nu))*h;
+            /* local extrapolation -> use higher-order solution to
+                                                continue the integration */
+            *(temp_y+nu) = *(temp_y+nu) +  5179.0/57600.0  * *(K1+nu) * h
+                                        +  7571.0/16695.0  * *(K3+nu) * h
+                                        +   393.0/640.0    * *(K4+nu) * h
+                                        - 92097.0/339200.0 * *(K5+nu) * h
+                                        +   187.0/2100.0   * *(K6+nu) * h
+                                        +     1.0/40.0     * *(K7+nu) * h;
         }
         /* advance x */
         x += h;
