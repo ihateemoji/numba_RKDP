@@ -2,14 +2,23 @@ import ctypes as ct
 import numba as nb
 import numpy as np
 import os
+import platform
 
 # define the signature of input function
 RKDP_sig = nb.types.void(nb.types.double, nb.types.CPointer(nb.types.double), \
         nb.types.CPointer(nb.types.double), nb.types.CPointer(nb.types.double))
 
+def _get_lib_name():
+    sysname = platform.system()
+    if sysname == "Darwin":
+        return "libRKDP.dylib"
+    if sysname == "Windows":
+        return "libRKDP.dll"
+    return "libRKDP.so"
+
 # locate the shared library inside the package
 _pkg_root = os.path.dirname(__file__)
-_lib_path = os.path.join(_pkg_root, "lib", "libRKDP.so")
+_lib_path = os.path.join(_pkg_root, "lib", _get_lib_name())
 _lib = ct.CDLL(_lib_path)
 # define the signature of C RKDP solver
 _lib.RKDP_solver.restype = ct.c_void_p
