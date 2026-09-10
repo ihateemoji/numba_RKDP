@@ -22,17 +22,29 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install gcc on macOS
+        if: runner.os == 'macOS'
+        run: |
+          brew install gcc
+          echo "CC=$(brew --prefix gcc)/bin/gcc-13" >> $GITHUB_ENV
+
+      - name: Install gcc on Windows
+        if: runner.os == 'Windows'
+        run: choco install mingw
+
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.23
         # cibuildwheel will automatically:
         # - create isolated build environments
-        # - run `make` to compile the C library
+        # - run `make` to compile the C library with gcc
         # - run `pip wheel .` inside them
         # - produce manylinux/macosx/win wheels containing the compiled library
         env:
           CIBW_BUILD: "cp38-* cp39-* cp310-* cp311-* cp312-* cp313-*"
           # Build the C library first in each isolated environment
           CIBW_BEFORE_ALL: "make"
+          # Ensure gcc is used on all platforms
+          CIBW_ENVIRONMENT: "CC=${{ env.CC || 'gcc' }}"
           # We only need the shared library; no tests during wheel build
           CIBW_TEST_SKIP: "*"
 
