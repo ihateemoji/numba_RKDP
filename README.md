@@ -58,3 +58,12 @@ y = sol[0,:]
 z = sol[1,:]
 ```
 For additional examples, see "examples" folder in the repository.
+
+## When to use this?
+
+`numba_RKDP` is designed for calling an adaptive ODE solver from inside
+`@njit(parallel=True)` (or other Numba-jitted code). This is useful when you
+need to solve thousands of independent ODEs (e.g. momentum modes evolution equations).
+
+For interactive use or maximum single-call speed on simple problems, SciPy's
+`solve_ivp` is usually faster and more feature-rich.
