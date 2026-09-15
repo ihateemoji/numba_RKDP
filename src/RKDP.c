@@ -4,8 +4,8 @@
 void *xmalloc(size_t bytes) {
     /* Lazy malloc wrapper that terminates the execution upon memory allocation
             failure. In principle, this one is problematic as it does not
-            free any other memory that may have been already allocated.
-            However, if call to malloc fails, we probably have bigger
+            free any other memory that may have already been allocated.
+            However, if a call to malloc fails, we probably have bigger
             problems ...
         Input:
             <size_t> - number of bytes to allocate
@@ -52,7 +52,7 @@ void Adaptive_Step(void (*f)(double, double*, double*, void*),
     /* Procedure that adaptively advances the solution to the system of ODEs.
         Inputs:
             <void(double, *double, *double, *void)> -
-                        procedure corresponding to the right hand side of
+                        procedure corresponding to the right-hand side of
                                                             the system of ODEs,
                             first input -> current value of x
                             second input -> current solution vector
@@ -74,7 +74,7 @@ void Adaptive_Step(void (*f)(double, double*, double*, void*),
             <*double> - pointer to the array to store second RK coefficients
             <*double> - pointer to the array to store third RK coefficients
             <*double> - pointer to the array to store fourth RK coefficients
-            <*double> - pointer to the array to store fith RK coefficients
+            <*double> - pointer to the array to store fifth RK coefficients
             <*double> - pointer to the array to store sixth RK coefficients
             <*double> - pointer to the array to store seventh RK coefficients
             <int>     - dimensionality of the problem */
@@ -84,11 +84,11 @@ void Adaptive_Step(void (*f)(double, double*, double*, void*),
                                                     of solution vector */
     double h = *hin; /* initial estimate of the stepsize */
     cp_array(y0, temp_y, N); /* store current solution */
-    /* we advance the system untill the value of x1 is reached */
+    /* we advance the system until the value of x1 is reached */
     f(x, temp_y, K1, data); /* only need to compute K1 once */
     do {
         /* we iteratively reduce the step and compute the truncation
-                     error untill the desired relative error is achieved */
+                     error until the desired relative error is achieved */
         do {
             /* computation of the RK coefficients as per the
                 Butcher table from
@@ -151,8 +151,7 @@ void Adaptive_Step(void (*f)(double, double*, double*, void*),
             }
             TE = sqrt(TE);
             total_y = sqrt(total_y);
-            /* if the error tolerance is not achieved we decrease
-                                                                    step */
+            /* if the error tolerance is not achieved, we decrease step */
             if (TE > eps_in*total_y) {
                 /* note that we take special care for the case where
                                                         x is close to x1 */
@@ -188,7 +187,7 @@ void RKDP_solver(double *x, double *y,
                     double eps_rel, int64_t N, int64_t M,
                                         void *data, int64_t silent) {
     /* Adaptive Dormand–Prince solver of the system of ODEs.
-        The ODE is solved on the provided x domain. However, the number of
+        The ODE is solved over the provided x-domain. However, the number of
         steps between discrete points of x domain is chosen adaptively
         to satisfy the provided relative error condition.
         Inputs:
@@ -196,7 +195,7 @@ void RKDP_solver(double *x, double *y,
             <*double> - y (N*M) array to store the solution in,
                             *(y+i) elements determine the initial condition
             <void(double, *double, *double, *void)> -
-                        procedure corresponding to the right hand side of
+                        procedure corresponding to the right-hand side of
                                                             the system of ODEs,
                             first input -> current value of x
                             second input -> current solution vector
@@ -208,7 +207,7 @@ void RKDP_solver(double *x, double *y,
             <int>     - dimensionality of the problem
             <int>     - number of points in x domain
             <*void>   - any data passed through to the function
-            <int>     - flag indicating weather or not to print the status
+            <int>     - flag indicating whether or not to print the status
                             (0 -> print the status)
                             (1 -> suppress status printing) */
     /* initial memory allocation */
