@@ -38,7 +38,7 @@ RKDP_solver = _lib.RKDP_solver
 @nb.njit()
 def RKDP(func_ptr, x, y0, eps_rel=1e-12, \
                     data=np.array([0.0], np.float64), silent=0):
-    """Adaptive Doramnd-Prince solver of the system of ODEs.
+    """Adaptive Dormand-Prince solver of the system of ODEs.
         Inputs:
             <*func<double, *double, *double, *void>> - pointer to a function
                     corresponding to the RHS of the system of ODEs.
@@ -50,7 +50,7 @@ def RKDP(func_ptr, x, y0, eps_rel=1e-12, \
             <array<float>> - array of the initial conditions
         Optional Inputs:
             <float> - target relative tolerance (default 1e-12)
-            <array<float>> - array contatining any optional data to be send
+            <array<float>> - array containing any optional data to be sent
                             to the RHS function (default [0.0])
             <int>        - switch for the silent operation
                                 0 - silent
